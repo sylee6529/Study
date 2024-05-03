@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pancake Drag and Drop + Reset</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+    #container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 300px;
+    }
+    .square {
+        width: 300px;
+        height: 200px;
+        border: 2px solid #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 20px;
+    }
+    #left-square {
+        width: 270px;
+        height: 80px;
+        background-color: lightgrey;
+        border-radius: 10px;
+    }
+    #right-square {
+        width: 270px;
+        height: 140px;
+        background-color: lightgrey;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+    }
+    .plate {
+        width: 300px;
+        height: 100px;
+        background-color: lightgrey;
+        border-radius: 10px;
+        margin: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .pancake {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+    }
+</style>
+</head>
+<body>
+<div id="container">
+    <div id="left-square" class="square"></div>
+    <div class="square">
+        <div class="plate"></div>
+        <div class="plate"></div>
+    </div>
+</div>
+<button id="resetButton">다시하기</button>
+
+<script>
+let draggedItem = null;
+
+function addPancakesToContainer() {
+    const leftSquare = document.querySelector('#left-square');
+    leftSquare.innerHTML = ''; 
+    for (let i = 0; i < 4; i++) {
+        const pancake = document.createElement('img');
+        pancake.src = "https://www.svgrepo.com/show/27386/waffle.svg";
+        pancake.className = 'pancake';
+        pancake.draggable = true;
+        pancake.addEventListener('dragstart', dragStart);
+        pancake.addEventListener('dragend', dragEnd);
+        leftSquare.appendChild(pancake);
+    }
+}
+
+document.querySelectorAll('.plate').forEach(plate => {
+    plate.addEventListener('dragover', dragOver);
+    plate.addEventListener('drop', drop);
+});
+
+function dragStart(event) {
+    event.dataTransfer.setData('text/plain', event.target.src);
+    draggedItem = event.target;
+}
+
+function dragEnd() {
+    draggedItem = null;
+}
+
+function dragOver(event) {
+    event.preventDefault();
+}
+
+function drop(event) {
+    event.preventDefault();
+    let dropTarget = event.target;
+    if(dropTarget.className === 'pancake') {
+        dropTarget = dropTarget.parentNode;
+    }
+    if(dropTarget.children.length < 2 && dropTarget.className === 'plate') {
+        dropTarget.appendChild(draggedItem);
+    }
+}
+
+document.getElementById('resetButton').addEventListener('click', function() {
+    const leftSquare = document.getElementById('left-square');
+    
+    while (leftSquare.firstChild) {
+        leftSquare.removeChild(leftSquare.firstChild);
+    }
+
+    const plates = document.querySelectorAll('.plate');
+    plates.forEach(plate => {
+        while (plate.firstChild) {
+            plate.removeChild(plate.firstChild);
+        }
+    });
+
+    for(let i = 0; i < 4; i++) {
+        const pancake = document.createElement('img');
+        pancake.src = "https://www.svgrepo.com/show/27386/waffle.svg";
+        pancake.classList.add('pancake');
+        pancake.setAttribute('draggable', true);
+        leftSquare.appendChild(pancake);
+    }
+    document.querySelectorAll('.pancake').forEach(item => {
+        item.addEventListener('dragstart', dragStart);
+        item.addEventListener('dragend', dragEnd); 
+    });
+});
+
+addPancakesToContainer();
+    
+</script>
+</body>
+</html>
